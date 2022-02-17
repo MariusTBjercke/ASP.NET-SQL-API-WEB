@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title></title>
+</head>
+<style>
+	.row {
+		display: block;
+		padding: 10px 0;
+	}
+	.row:first-child {
+		padding-top: 0;
+	}
+</style>
+<body>
+
+<div id="users"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+
+    var html = document.getElementById("users");
+
+    const model = {
+        data: {
+            users: []
+        }
+    };
+
+    updateView();
+
+    function logUsers() {
+		console.log(model.data.users);
+	}
+
+	async function updateView() {
+        await getUsers();
+		html.innerHTML = "";
+		model.data.users.forEach(user => {
+            html.innerHTML += `<div class="row"><div>${user.firstName} ${user.lastName}, ${user.address}, ${user.city}</div><button onclick="delUser(${user.id})">Delete</button></div>`;
+		});
+	}
+
+	async function getUsers(id = "") {
+		let result = await axios.get('/api/users/' + id);
+		model.data.users = result.data;
+	}
+
+	async function delUser(id) {
+		await axios.delete('/api/users/' + id);
+		updateView();
+	}
+
+	async function addUser(firstname, lastname, address, city) {
+		await axios.post('/api/users/',
+			{
+				FirstName: firstname,
+				LastName: lastname,
+				Address: address,
+				City: city
+			});
+	}
+
+    async function updateUser(id, firstname, lastname, address, city) {
+		await axios({
+			method: 'post',
+			url: '/api/users/',
+			data: {
+				Id: id,
+                FirstName: firstname,
+                LastName: lastname,
+                Address: address,
+                City: city
+			}
+		});
+	}
+
+</script>
+</body>
+</html>
